@@ -1,0 +1,596 @@
+--DOM
+
+--Id_domu
+
+--Miasto
+
+--Ulica
+
+--Metraz
+
+--Cena_proponowana
+
+create table DOM 
+
+(id_domu numeric(5) primary key,
+
+miasto varchar(30) not null,
+
+ulica varchar(30),
+
+metraz numeric(5,2), -- 123,34
+
+cena_proponowana numeric(9,2))
+
+
+
+--KLIENT
+
+--Id_klienta
+
+--Imie
+
+--Nazwisko
+
+--Miasto
+
+--Ulica
+
+create table Klient
+
+(id_klienta numeric(5) primary key,
+
+imie varchar(30) not null,
+
+nazwisko varchar(30) not null,
+
+miasto varchar(30) not null,
+
+ulica varchar(30))
+
+hh
+
+--TRANSAKCJE
+
+--ID_transakcji
+
+--ID_domu
+
+--ID_klienta
+
+--Cena_uzyskana
+
+--Data_transakcji
+
+
+
+create table Transakcje
+
+(id_transakcji numeric(5) identity(1,1) primary key,
+
+id_domu numeric(5) foreign key (id_domu) references dom(id_domu),
+
+id_klienta numeric(5) foreign key (id_klienta) references klient(id_klienta),
+
+cena_uzyskana numeric(9,2),
+
+data_transakcji date default getdate()) --'RRRR-MM-DD'
+
+
+
+--2. Wypełnić tabele danymi (po 5 wierszy).
+
+insert into dom values
+
+(1,'Gdańsk','Miszewskiego 5',120.5,300000.50),
+(2,'Sopot','Grunwaldzka 12',85.75,580000),
+(3,'Gdynia','Krasickiego 12',150.25,400000),
+(4,'Gdańsk','Grunwaldzka 211',200,500000),
+(5,'Gdynia','Świętojańska 1',30,null);
+
+insert into klient values
+(1,'Jan','Kowalski','Gdańsk','Miszewskiego 5'),
+(2,'Anna','Nowak','Wejherowo','Gdańska 5'),
+(3,'Adam','Malinowski','Gdańsk','Kołobrzeska 25B/2'),
+(4,'Ewa','Woźniak','Kraków','Wawelska 5'),
+(5,'Julia','Wiśniewska','Warszawa','Aleje Jerozolomiskie 555/2')
+
+insert into transakcje (id_domu,id_klienta,cena_uzyskana,data_transakcji)
+values
+(4,1,480000,'2019-09-20'),
+(3,5,398000,'2019-08-04'),
+(2,4,600000,'2019-07-24')
+
+--3. Wyświetlić wszystkie domy.
+select*from Dom
+
+--4. Wyświetlić imiona, nazwiska i miasto klientów w porządku alfabetycznym rosnącym według nazwy miasta.
+select imie, nazwisko, miasto from Klient order by miasto
+
+--5. Wyświetlić ulice, miasta i metraz dla domów  w porządku malejącym według metrażu.
+select ulica, miasto, metraz from Dom order by metraz desc
+
+--6. Wyświetlić wszystkie domy o metrażu mniejszym niż 200 metrów.
+select*from Dom where metraz <200
+
+--7. Wyświetlić wszystkie transakcje jakie miały miejsce, wyświetlając wszystkie dane o klientach,domach i transakcjach 
+--bez wartości kluczy obcych i głównych.
+select d.miasto, d.ulica, metraz, cena_proponowana, imie, nazwisko, k.miasto, k.ulica, cena_uzyskana, t.data_trancakcji 
+from Dom d, Klient k, Transakcje t
+where d.id_domu=t.id_domu and k.id_klienta=t.id_klienta
+
+--8. Wyświetlić miasta, nazwiska oraz imiona klientów, sortując według miasta 
+--malejąco i według nazwiska rosnąco oraz imienia malejąco.
+
+select miasto, nazwisko, imie from Klient
+order by miasto desc, nazwisko asc, imie desc
+
+--9. Wyświetlić wszystkich klientów, którzy mieszkają w Gdyni.
+select*from Klient 
+where miasto='Gdynia'
+
+--10. Wyświetlić cenę proponowaną wszystkich domów znajdujących się w Gdańsku.
+select cena_proponowana, miasto from dom where miasto='Gdańsk'
+
+--11. Wyswietlić ceny proponowane domów, które znajdują się na ulicach Grunwaldzkiej i Toruńskiej w Gdańsku.
+select cena_proponowana, miasto from Dom
+where ulica like 'Słoneczna%' or ulica like'Toruńska%' and miasto='Gdańsk'
+
+select * from Dom
+
+--12. Wyświetlić ceny proponowane wszystkich domów w miastach Gdańsk i Gdynia, 
+--w porządku malejącym według ceny proponowanej.
+select cena_proponowana from dom where miasto in('Gdynia', 'Gdańsk') order by cena_proponowana desc
+
+--13. Wyświetlić wszystkie miasta w których znajdują się domy dostępne w sprzedaży, nie duplikując nazw miast.
+select distinct miasto from Dom 
+
+--14. Wyświetlić wszystkie transakcje domów, których cena uzyskana kształtuje się w zakresie pomiędzy 200000 a 500000 złotych.
+select * from Transakcje where cena_uzyskana >=200000 and cena_uzyskana <=500000
+
+select * from Transakcje where cena_uzyskana between 200000 and 500000
+--between
+
+--15. Wyświetlić wszystkie transakcje dla których identyfikator domu jest mniejszy niż 15.
+select * from Transakcje where id_domu < 15
+
+--16. Wyświetlić wszystkie transakcje dla których identyfikator domu jest równy 4, 13 lub 19.
+select * from Transakcje where id_domu = 4 or id_domu = 13 or id_domu = 19
+
+select * from Transakcje where id_domu in (4, 13, 19)
+
+--17. Wyświetlić wszystkie domy dla których nie podano ceny proponowanej.
+select * from Dom where cena_proponowana is null
+
+--18. Wyświetlić wszystkie domy dla identyfikatora powyżej 2, których nazwa ulicy zawiera literę w.
+select * from dom where id_domu > 2 and ulica like '%w%'
+
+--19. Wyświetlić nazwiska wszystkich osób, które dokonały transakcji zakupu domu.
+select nazwisko from Klient where id_klienta in (select id_klienta from Transakcje) 
+
+--20. Zakładając dodatkowy podatek na zakup nieruchomości w wysokości 15% wyświetlić listę proponowanych cen powiększoną o tę wartość.
+select cast(round (cena_proponowana * 1.15,2) as numeric(9,2)) as'cena z podatkiem' from Dom
+
+--21. Rozbudować poprzednie zapytanie wyświetlając trzy kolumny – cena bez podatku, cena z podatkiem, wartość podatku.
+select cena_proponowana as 'cena przed podatkiem' from Dom select cast (cena_proponowana * 1.15 as numeric(9,2)) as 'cena z podatkiem' from Dom select cast(cena_proponowana*0.15 as numeric (9,2)) as 'wartość podatku' from Dom
+--opcja druga
+select cena_proponowana as 'cena bez podatku',
+cast (cena_proponowana * 1.15 as numeric(9,2)) as 'cena z podatkiem',
+cast(cena_proponowana*0.15 as numeric (9,2)) as 'wartość podatku'
+from Dom
+--22. Obliczyć średnią cenę proponowaną metra kwadratowego domu.
+select cast(round(avg(cena_proponowana/metraz),2) as numeric(9,2)) as 'średnia cena m2' from Dom
+
+--23. Wyświetlić tylko te transakcje, które miały miejsce w 2016 roku, podając nazwę miasta, 
+--imię i nazwisko klienta oraz cenę proponowaną i uzyskaną.
+select k.miasto, k.imie, k.nazwisko, d.cena_proponowana, t.cena_uzyskana from Klient k,  Dom d, Transakcje t
+where k.id_klienta=t.id_klienta and d.id_domu=t.id_domu
+and year (t.data_trancakcji)=2019
+
+
+--24. Zakładając, że domy poniżej 50 metrów będą traktowane jako dwupokojowe, do 100 metrów trzypokojowe a powyżej czteropokojowe, 
+--dodać kolumnę liczba pokoi, która obok pełnych informacji 
+--o domu poda jego wielkość w pokojach (odpowiednio dwupokojowy, trzypokojowy, czteropokojowy).
+select *,
+case
+when metraz<50 then 'dwupokojowe'
+when metraz<100 then 'trzypokojowe'
+else 'czteropokojowe'
+end as 'liczba pokoi', metraz
+from Dom
+
+--25. Wyświetlić wszystkie transakcje sprzedaży domów, które miały miejsce poza Trójmiastem.
+select * from Dom d, Transakcje t
+where d.id_domu=t.id_domu
+and miasto not in('Gdańsk', 'Gdynia', 'Sopot')
+
+--26. Wyświetlić w dwóch kolumnach – w pierwszej identyfikatory oraz w drugiej kolumnie imiona i nazwiska klientów.
+select imie + space(1) + nazwisko as 'imie i nazwisko',
+id_klienta from Klient
+
+--27. Wyświetlić identyfikatory wszystkich niesprzedanych domów.
+select id_domu from Dom 
+where id_domu not in (select id_domu from Transakcje)
+
+--28. Wyświetlić transakcje klientów, których nazwiska rozpoczynają się na literę A, B, C, D, E, F lub G.
+select * from Transakcje t, Klient k
+where k.id_klienta=t.id_klienta
+and left(k.nazwisko, 1) between 'A' and 'G'
+
+--29. Wyświetlić w kolumnie o nazwie wartość różnicę w postaci wartości bezwzględnej, 
+--pomiędzy ceną proponowaną a uzyskaną, dodając kolumny zawierające nazwy miast domów, ich identyfikatory oraz ulice.
+select 
+abs(Dom.cena_proponowana - Transakcje.cena_uzyskana)
+as 'Różnica',
+Dom.id_domu, Dom.ulica, Dom.miasto
+from Dom, Transakcje
+where Dom.id_domu=Transakcje.id_transakcji
+
+--30. Wyświetlić tylko te transakcje, których różnica pomiędzy ceną uzyskaną a proponowaną jest większa od 0.
+select * from Transakcje t , Dom d where t.id_transakcji=d.id_domu and cena_proponowana!=cena_uzyskana 
+
+
+select t.cena_uzyskana-d.cena_proponowana as 'różnica'
+from Transakcje t , Dom d 
+where t.id_domu=d.id_domu
+and t.cena_uzyskana-d.cena_proponowana>0
+
+--31. Wyświetlić wartość w miesiącach, jaka upłynęła pomiędzy transakcją a dzisiejszym dniem.
+
+select *, datediff(MM, data_transakcji, getdate()) as 'liczba miesięcy'
+from Transakcje
+
+--32. Wyświetlić wartość liczbową prezentującą liczbę przeprowadzonych transakcji.
+
+select count(*) as 'liczba transakcji' from Transakcje 
+
+--33. Wyświetlić cenę proponowaną w wartościach tekstowych.
+
+select cast(cena_proponowana as varchar(30))
+as 'Liczba jako tekst'
+from Dom
+
+--34. Wyświetlić łączną wartość cen uzyskanych za dom.
+
+select sum(cena_uzyskana) as 'Łączna cena '
+from Transakcje
+
+--35. Wyświetlić minimalną cenę uzyskaną za dom.
+
+select min(cena_uzyskana) as 'Minimalna cena za dom'
+from Transakcje
+
+--36. Wyświetlić maksymalną cenę uzyskaną za dom.
+
+select max(cena_uzyskana) as 'Max ceny uzyskanej'
+from Transakcje
+
+--37. Wyświetlić wszystkie nazwiska i ewentualnie daty transakcji oraz metraże sprzedanych domów,
+--w przypadku, gdy transakcja sprzedaży miała miejsce.
+
+select k.nazwisko, t.data_transakcji, d.metraz 
+from klient k left join Transakcje t 
+on k.id_klienta=t.id_klienta
+left join Dom d on d.id_domu=t.id_domu
+
+--right join- łączenie od prawej strony 
+--left join - łączenie od lewej strony 
+--inner join
+
+--38. Wyświetlić wszystkie miasta, których dwie pierwsze litery są takie same.
+
+select distinct  d1.miasto, d2.miasto 
+from dom d1, dom d2
+where left(d1.miasto,2)=left(d2.miasto,2)
+and d1.miasto<d2.miasto
+
+--39. Wyświetlić wszystkie domy, których metraż jest większy od największego metrażu w Sopocie.
+
+select * from dom
+where metraz>
+(select max(metraz) from dom where miasto = 'Sopot')
+
+--40. Wyświetlić wszystkie domy wraz z nazwiskami klientów, którzy kupili co najmniej dwa domy.
+
+select d.*, k.nazwisko, k.imie
+from Dom d, Klient k, Transakcje t 
+where t.id_domu=k.id_klienta
+and t.id_klienta=k.id_klienta
+and k.id_klienta in 
+(select k.id_klienta from Klient k, Transakcje t 
+where t.id_klienta=k.id_klienta
+group by k.id_klienta having count(*)>=2)
+
+--41. Wyświetlić wszystkie nazwy klientów oraz domy klientów, którzy kupili dokładnie dwa domy.
+
+select d.*, k.nazwisko, k.imie
+from Dom d, Klient k, Transakcje t 
+where t.id_domu=k.id_klienta
+and t.id_klienta=k.id_klienta
+and k.id_klienta in 
+(select k.id_klienta from Klient k, Transakcje t 
+where t.id_klienta=k.id_klienta
+group by k.id_klienta having count(*)=2)
+
+--42. Wyświetlić wszystkie transakcje, w których cena uzyskana była wyższa niż średnia.
+
+select * from Transakcje 
+where cena_uzyskana>
+(select avg(cena_uzyskana) from Transakcje )
+
+--43. Wyświetlić wszystkie domy, które były w sprzedaży zanim dodany został dom w Sopocie.
+
+select * from Dom
+where id_domu<
+(select id_domu from Dom where miasto = 'Sopot')
+
+--44. Wyświetlić dni tygodnia wszystkich zawartych transakcji.
+
+select data_transakcji, datename(dw,data_transakcji) 
+as 'Dzień  tygodnia '
+from Transakcje 
+
+--dd- dzien miesiąca
+--yyyy- rok
+--month/MM- miesiąc
+
+--45. Wyświetlić identyfikatory i dni tygodnia dla transakcji w miastach w których sprzedano co najmniej 3 domy.
+
+select id_transakcji, datename(dw,data_transakcji) as 'Dzień tygodnia '
+from Transakcje t, dom d
+where t.id_domu=d.id_domu
+and d.miasto in
+(select miasto from dom d , Transakcje t
+where d.id_domu=t.id_domu
+group by miasto having count(*)>=3)
+
+--46. Wyświetlić wszystkie nazwiska klientów i ewentualnie nazwy miast i ulic, gdzie pierwsza litera ulicy jest równa pierwszej literze miasta.
+
+
+
+--47. Wyświetlić w jednej kolumnie miesiące, a w drugiej liczby transakcji przeprowadzonych w tym czasie.
+
+--48. Zakładając, że prowizja w 2021 roku wynosi 1,55%, wyświetlić wszystkie ceny uzyskane za domy bez tej prowizji, których sprzedaż miała miejsce w 2021 roku.
+
+select cena_uzyskana*0.9845 as 'Cena bez prowizji'
+from Transakcje 
+where year(data_transakcji)=2021
+
+
+--49. Wyświetlić wszystkie 5 literowe nazwiska, których 1 litera jest równa 3 literze.
+
+select * from Klient where len(nazwisko)=5
+and left(nazwisko,1)=substring(nazwisko,3,1)
+
+--50. Wyświetlić nazwiska trzech klientów, którzy przeprowadzili jakiekolwiek transakcje zakupu domu jako pierwsi.
+
+select top 3  imie, nazwisko from Transakcje, Klient
+where Klient.id_klienta=Transakcje.id_klienta
+order by data_transakcji asc
+
+--51. Wyświetlić wszystkie identyfikatory domów oraz ewentualnie ich miasta w przypadku, gdy cena proponowana metra kwadratowego przekracza 5000 zł.
+
+select d1.id_domu , d2.miasto 
+from DOM d1 left join Dom d2
+on d1.id_domu=d2.id_domu
+and d2.cena_proponowana/d2.metraz>5000
+
+
+--52. Wyświetlić nazwiska kończące się na „ski” dla wszystkich klientów, którzy kupili co najmniej 1 dom.
+
+select nazwisko, imie from Klient k,  Transakcje t 
+where k.id_klienta=t.id_transakcji
+and k.nazwisko like '%ski'
+
+--53. Zwiększyć cenę proponowaną domów o 5%.
+
+update DOM set cena_proponowana*=1.05
+
+--54. Obniżyć cenę proponowaną domu o najwyższej cenie o 5000 zł.
+
+update Dom set cena_proponowana-=5000 
+where cena_proponowana=
+(select max(cena_proponowana) from DOM)
+
+--55. Obniżyć o 10% ceny wszystkich niesprzedanych domów.
+
+update DOM set cena_proponowana*=0.9
+where id_domu not in (select id_domu from Transakcje)
+
+
+--56. Usunąć wszystkich klientów, których nazwiska zaczynają się na literę „A”.
+-- delete usówa wiersze 
+delete from Klient where nazwisko like 'A%'
+
+--57. Usunąć z oferty wszystkie domy, które nie zostały sprzedane.
+delete from DOM where id_domu not in (select id_domu from Transakcje)
+
+--58. Utworzyć widok dla wszystkich klientów, którzy nie nabyli jeszcze domu.
+
+go--rozdziela nowe query
+create view zadanie58 as 
+select * from Klient 
+where id_klienta not in
+(select id_klienta from Transakcje )
+
+--59. Zwiększyć identyfikatory klientów, którzy nie nabyli domu o 100.
+
+update zadanie58 set id_klienta+=100
+
+select * from zadanie58
+
+--60. Dodać dwa nowe domy.
+ 
+select * from DOM
+insert into DOM (id_domu,miasto,ulica) values
+(6,'Sopot','Nowa 10')
+
+
+
+
+---------------------------------------------------------------------------------------------------------------
+t into cdk values (3, 30, 'lecture room');
+
+insert into cdk values (4, 120, 'lecture room');
+
+insert into cdk values (5, 30, 'lecture room');
+
+insert into cdk values (6, 30, 'lecture room');
+
+insert into cdk values (7, 30, 'lecture room');
+
+insert into cdk values (9, 400, 'auditorium');
+
+insert into cdk values (23, 13, 'computer laboratory');
+
+insert into cdk values (24, 29, 'computer laboratory');
+
+insert into cdk values (25, 29, 'computer laboratory');
+
+insert into cdk values (34, 10, 'media room');
+
+insert into cdk values (36, 31, 'computer laboratory');
+
+ 
+
+go
+
+create table wz (room_number numeric(5) primary key, capacity numeric(3), room_type varchar(30));
+
+go
+
+insert into wz values (307, 70, 'lecture room');
+
+insert into wz values (310, 30, 'lecture room');
+
+insert into wz values (311, 30, 'lecture room');
+
+insert into wz values (1, 200, 'auditorium');
+
+insert into wz values (23, 13, 'computer laboratory');
+
+insert into wz values (119, 29, 'computer laboratory');
+
+insert into wz values (118, 29, 'computer laboratory');
+
+insert into wz values (238, 31, 'computer laboratory');
+
+go
+
+ 
+
+CREATE TABLE building (
+
+   id numeric(5) identity(1,1) primary key,
+
+   name varchar(100) not null,
+
+   city varchar(100),
+
+   address varchar(100),
+
+   floor_number numeric(1) ,
+
+   room_number numeric(5) FOREIGN KEY (room_number) REFERENCES cdk(room_number));
+
+   go
+
+ insert into building(name,city,address,floor_number,room_number)  values ('CDK WZ UG','Sopot','Piaskowa 9',0,4)
+
+ insert into building(name,city,address,floor_number,room_number) values ('CDK WZ UG','Sopot','Piaskowa 9',0,5)
+
+ insert into building(name,city,address,floor_number,room_number) values ('CDK WZ UG','Sopot','Piaskowa 9',0,6)
+
+ insert into building(name,city,address,floor_number,room_number) values ('CDK WZ UG','Sopot','Piaskowa 9',0,7)
+
+ insert into building(name,city,address,floor_number,room_number) values ('CDK WZ UG','Sopot','Piaskowa 9',0,9)
+
+ insert into building(name,city,address,floor_number,room_number) values ('CDK WZ UG','Sopot','Piaskowa 9',1,23)
+
+ insert into building(name,city,address,floor_number,room_number) values ('CDK WZ UG','Sopot','Piaskowa 9',1,24)
+
+ insert into building(name,city,address,floor_number,room_number) values ('CDK WZ UG','Sopot','Piaskowa 9',1,25)
+
+ insert into building(name,city,address,floor_number,room_number) values ('CDK WZ UG','Sopot','Piaskowa 9',1,36)
+
+ select * from cdk
+ 
+ --zmienić w typie pokoju computer labolatory na labolatory
+ update wz set room_type='laboratory'
+ where room_type='computer laboratory'
+
+ select distinct room_type from wz
+ select distinct room_type from cdk
+
+ --wstawic pokoj b2 do tabeli
+ insert into wz values (2,40,'laboratory')
+
+ select * from building
+
+ --1. wyświetl nazwy wszystkich budynkó (new_name)
+ --i liczbę miejsc w skali (capacity), dla sal które mają więcej niż 20 miejsc siedzących 
+ --(capacity ) i są położone na pierwszym piętrze (floor)
+ --dwie tabele building i cdk 
+
+ select b.name as new_name, capacity as 'Capacity'
+ from building b, cdk c
+ where b.room_number=c.room_number
+ and c.capacity>20
+ and b.floor_number=1 
+
+-- 2. Utwórz zapytanie z wykorzystaniem instrukcji CASE, które wyświetli numer sali (room number), 
+--liczbę miejsc w sali (number of seats) i pojemność podzieloną na trzy kategorie:
+--- więcej niż 100 studentów (capacity>100)
+--- 50-100 studentów (capacity od 50 do 100)
+--- mniej niż 50 studentów (capacity<50)
+--Dla wszystkich sal z budynku CDK.
+
+select room_number as 'room number', 
+capacity as 'number of seats',
+case
+when capacity>100 then 'więcej niż sto studentów'
+when capacity between 50 and 100 then '50-100 studentów'
+when capacity<50 then 'mniej niż 50 studentów'
+end as 'capacity of the room'
+from cdk 
+
+--3. Wyświetl wszystkie rodzaje sal poprzez wyświetlenie 
+--jedynie trzech pierwszych liter kategorii sali
+--tj.: lab, aud, lec (room_type) które znajdują się na pierwszym piętrze.
+
+select distinct left(room_type,3) as room_type
+from cdk, building
+where cdk.room_number=building.room_number
+and floor_number=1
+
+select distinct left(room_type,3) as room_type
+--substring(room_type,1,3)
+from cdk join building
+on cdk.room_number=building.room_number
+and floor_number=1
+
+--4. Wyświetl wszystkie numery sal w budynku CDK – 
+--jeżeli numer sali w tabeli CDK jest taki sam jak w tabel WZ
+--- wyświetl dodatkowo wszystkie informacje z tabeli WZ. 
+select c.room_number , w.capacity, w.room_type
+
+select c.room_number , isnull(cast(w.capacity as varchar(3)),'') as capacity,
+isnull (w.room_type,'-')as room_type
+from cdk c left join wz w 
+on c.room_number=w.room_number
+
+
+--5.  Wyświetl wszystkie numery sal w budynku WZ – 
+--jeżeli numer sali w tabeli WZ jest taki sam jak w tabel CDK 
+--- wyświetl dodatkowo wszystkie informacje z tabeli CDK.
+
+select w.room_number, c.*
+from wz w left join cdk c 
+on w.room_number=c.room_number
+
+--6. Jaki jest błąd w poniższym przykładzie i jak go naprawić? 
+select b.room_number, room_type, address, city
+from building b, cdk c
+where b.room_number=c.room_number
+
+

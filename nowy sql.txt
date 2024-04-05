@@ -1,0 +1,1145 @@
+--wprowadzenie
+create table t 
+(id int,
+k1 numeric(2),
+k2 varchar(20))
+
+insert into t values
+(1,12,'styczen'),
+(2,15,'luty')
+
+select * from t
+
+--zmiana nazwy kolumny tabeli
+--execute sp_rename 
+exec sp_rename 't.k1', 'dzien', 'column'
+--sp_rename
+
+--zmiana nazwy tabeli 
+
+sp_rename 't', 'tab'
+
+select * from tab
+
+--kopiowanie zawartości tabeli 
+select * into kopia from tab
+
+select * from kopia
+
+--zmiana typu danych w kolumnie 
+alter table kopia alter column k2 varchar(30)
+
+--dodawanie nowej kolumny do tabeli
+alter table kopia add k3 numeric(3)
+select * from kopia
+
+--usuwanie kolumny
+alter table kopia drop column k3
+
+--dodawanie indeksu
+create index tab_indeks on tab(k2)
+
+--usuwanie indeksu 
+drop index tab_indeks on tab 
+
+drop table tab,kopia
+-------------------------------------------------------
+--Kolumna ID powinna automatycznie zwiększać wartość w momencie wprowadzania kolejnych wierszy do tabeli.
+--Pozostałe kolumny muszą być właściwego dla nich typu oraz zastosowane powinny zostać odpowiednie klucze.
+
+create table Pracownicy 
+(id_pracownika numeric(5) primary key identity(1,1),
+imie varchar(30) NOT NULL,
+nazwisko varchar(30) NOT NULL,
+wiek numeric(3),
+dzial varchar(30) )
+
+insert into Pracownicy values
+('Jan','Nowak',27,'INF'),
+('Adam','Kowalski',26,'MAN'),
+('Anna', 'Nowak',23,'MGT'),
+('Ewa','Kowalska',23,'ACC')
+
+select*from Pracownicy
+--Na podstawie tabeli o nazwie Pracownicy, 
+--utworzyć jej kopię o nazwie Uzytkownicy, 
+--kopiując całą tabelę za wyjątkiem kolumny 
+--Dział i zmieniając nazwę kolumny  idpracownika 
+--na iduzytkownika.
+--Wyświetlić zawartość tabeli Uzytkownicy.
+
+select  id_pracownika as id_użytkownika,
+imie,nazwisko, wiek
+into Uzytkownicy
+from Pracownicy
+
+select* from Uzytkownicy
+
+--Na podstawie tabeli o nazwie Pracownicy,
+--utworzyć jej dokładną kopię o nazwie Studenci,
+--kopiując definicję oraz zawartość tej tabeli 
+--dla osób mających mniej niż 25 lat, 
+--jednocześnie zmieniając nazwę kolumny 
+--idpracownika na idstudenta.
+--Wyświetlić zawartość tabeli Studenci.
+
+select id_pracownika as id_studenta,
+imie, nazwisko,wiek,dzial
+into Studenci
+from Pracownicy 
+where wiek<25
+
+--W tabeli Uzytkownicy usunąć wiersze dla osób,
+--które mają mniej niż 25 lat i nazwisko 
+--rozpoczynające 
+--się od litery K. Zweryfikować poprawność.
+
+delete from Uzytkownicy where wiek<25
+and nazwisko like 'K%'
+
+--Usunąć tabelę Uzytkownicy i Studenci.
+drop table Uzytkownicy,Studenci
+
+--Kolumna IDRegionu powinna być kluczem głównym.
+--Pozostałe kolumny muszą być optymalnego dla 
+--nich typu oraz powinny zostać zastosowane 
+--odpowiednie klucze. 
+--Zweryfikować poprawność działania.
+
+create table Region 
+(id_regionu numeric(5) identity(1,1) primary key,
+nazwa varchar(30),
+id_pracownika numeric(5) foreign key (id_pracownika)
+references Pracownicy(id_pracownika))
+
+--Utworzyć tabelę o nazwie Osoba, zawierającą następujące pola:
+--id (klucz główny bez autonumeracji)
+--imię
+--nazwisko
+--pesel (wartości unikalne, tj. bez powtórzeń)
+--data urodzenia
+--wypełniając ją następującymi wartościami:
+--1 Jan Kowalski 65121812434
+--2 Adam Nowak 54052314588
+--3 Ewa Zielińska 88111238273
+--4 Anna Woźniak 92012013728
+--+ data urodzenia zgodna z numerem PESEL.
+
+create table Osoba
+(id_osoba numeric(5) primary key ,exe
+imie varchar(30),
+nazwisko varchar(30),
+pesel numeric(11)unique,
+data_urodzenia date)
+
+insert into Osoba values
+(1,'Jan','Kowalski', '65121812434', '18-12-1965'),
+(2,'Adam','Nowak', '54052314588', '23-05-1954'),
+(3,'Ewa', 'Zielińska', '88111238273', '12-11-1988'),
+(4,'Anna', 'Woźniak', '92012013728', '20-01-1992');
+
+select * from Osoba
+
+-- sprawdzić indeksy
+exec sp_helpindex Osoba
+
+--8. Zmienić nazwę tabeli Osoba na Pracownik.
+exec sp_rename 'Osoba', 'Pracownik'
+
+
+--9. Dodać do tabeli Pracownik następujące kolumny:
+--dzial
+--wyksztalcenie
+alter table Pracownik add dzial varchar(10),
+wyksztalcenie varchar(30)
+alter table Pracownik alter column dzial varchar(30)
+
+--Wyświetlić dane. Następnie ustawić wszystkim 
+--pracownikom dział "Organizacyjny", a pracownikom o 
+--id mniejszym niż 3, wykształcenie wyższe.
+update Pracownik set dzial='Organizacyjny'
+update Pracownik set wyksztalcenie='wyzsze'
+where id_osoba<3
+
+--10. Skopiować zawartość tabeli Pracownik do tabeli Pracownik_kopia.
+select * into Pracownik_kopia from Pracownik
+
+--11. Usunąć z tabeli Pracownik_kopia kolumnę o nazwie pesel.
+delete column
+
+12. W tabeli Pracownik_kopia zmienić kolumnę nazwisko tak, aby pozwalała na wprowadzenie 40 znaków.
+
+13. W tabeli Pracownik_kopia zmienić nazwę kolumny id na id_pracownika.
+
+14. Utworzyć indeks do tabeli Pracownik, indeksujący nazwisko i imię. Sprawdzić działanie.
+
+15. Usunąć indeks z tabeli Pracownik.
+
+------------------------------------------------------------------------------------------------------------
+--wprowadzenie
+create table t 
+(id int,
+k1 numeric(2),
+k2 varchar(20))
+
+insert into t values
+(1,12,'styczen'),
+(2,15,'luty')
+
+select * from t
+
+--zmiana nazwy kolumny tabeli
+--execute sp_rename 
+exec sp_rename 't.k1', 'dzien', 'column'
+--sp_rename
+
+--zmiana nazwy tabeli 
+
+sp_rename 't', 'tab'
+
+select * from tab
+
+--kopiowanie zawartości tabeli 
+select * into kopia from tab
+
+select * from kopia
+
+--zmiana typu danych w kolumnie 
+alter table kopia alter column k2 varchar(30)
+
+--dodawanie nowej kolumny do tabeli
+alter table kopia add k3 numeric(3)
+select * from kopia
+
+--usuwanie kolumny
+alter table kopia drop column k3
+
+--dodawanie indeksu
+create index tab_indeks on tab(k2)
+
+--usuwanie indeksu 
+drop index tab_indeks on tab 
+
+drop table tab,kopia
+-------------------------------------------------------
+--Kolumna ID powinna automatycznie zwiększać wartość w momencie wprowadzania kolejnych wierszy do tabeli.
+--Pozostałe kolumny muszą być właściwego dla nich typu oraz zastosowane powinny zostać odpowiednie klucze.
+
+create table Pracownicy 
+(id_pracownika numeric(5) primary key identity(1,1),
+imie varchar(30) NOT NULL,
+nazwisko varchar(30) NOT NULL,
+wiek numeric(3),
+dzial varchar(30) )
+
+insert into Pracownicy values
+('Jan','Nowak',27,'INF'),
+('Adam','Kowalski',26,'MAN'),
+('Anna', 'Nowak',23,'MGT'),
+('Ewa','Kowalska',23,'ACC')
+
+select*from Pracownicy
+--Na podstawie tabeli o nazwie Pracownicy, 
+--utworzyć jej kopię o nazwie Uzytkownicy, 
+--kopiując całą tabelę za wyjątkiem kolumny 
+--Dział i zmieniając nazwę kolumny  idpracownika 
+--na iduzytkownika.
+--Wyświetlić zawartość tabeli Uzytkownicy.
+
+select  id_pracownika as id_użytkownika,
+imie,nazwisko, wiek
+into Uzytkownicy
+from Pracownicy
+
+select* from Uzytkownicy
+
+--Na podstawie tabeli o nazwie Pracownicy,
+--utworzyć jej dokładną kopię o nazwie Studenci,
+--kopiując definicję oraz zawartość tej tabeli 
+--dla osób mających mniej niż 25 lat, 
+--jednocześnie zmieniając nazwę kolumny 
+--idpracownika na idstudenta.
+--Wyświetlić zawartość tabeli Studenci.
+
+select id_pracownika as id_studenta,
+imie, nazwisko,wiek,dzial
+into Studenci
+from Pracownicy 
+where wiek<25
+
+--W tabeli Uzytkownicy usunąć wiersze dla osób,
+--które mają mniej niż 25 lat i nazwisko 
+--rozpoczynające 
+--się od litery K. Zweryfikować poprawność.
+
+delete from Uzytkownicy where wiek<25
+and nazwisko like 'K%'
+
+--Usunąć tabelę Uzytkownicy i Studenci.
+drop table Uzytkownicy,Studenci
+
+--Kolumna IDRegionu powinna być kluczem głównym.
+--Pozostałe kolumny muszą być optymalnego dla 
+--nich typu oraz powinny zostać zastosowane 
+--odpowiednie klucze. 
+--Zweryfikować poprawność działania.
+
+create table Region 
+(id_regionu numeric(5) identity(1,1) primary key,
+nazwa varchar(30),
+id_pracownika numeric(5) foreign key (id_pracownika)
+references Pracownicy(id_pracownika))
+
+--Utworzyć tabelę o nazwie Osoba, zawierającą następujące pola:
+--id (klucz główny bez autonumeracji)
+--imię
+--nazwisko
+--pesel (wartości unikalne, tj. bez powtórzeń)
+--data urodzenia
+--wypełniając ją następującymi wartościami:
+--1 Jan Kowalski 65121812434
+--2 Adam Nowak 54052314588
+--3 Ewa Zielińska 88111238273
+--4 Anna Woźniak 92012013728
+--+ data urodzenia zgodna z numerem PESEL.
+
+create table Osoba
+(id_osoba numeric(5) primary key ,
+imie varchar(30),
+nazwisko varchar(30),
+pesel numeric(11)unique,
+data_urodzenia date)
+
+insert into Osoba values
+(1,'Jan','Kowalski', 65121812434, '18-12-1965'),
+(2,'Adam','Nowak', 54052314588, '23-05-1954'),
+(3,'Ewa', 'Zielińska', 88111238273, '12-11-1988'),
+(4,'Anna', 'Woźniak', 92012013728, '20-01-1992');
+
+select * from Osoba
+
+-- sprawdzić indeksy
+exec sp_helpindex Osoba
+
+--8. Zmienić nazwę tabeli Osoba na Pracownik.
+exec sp_rename 'Osoba', 'Pracownik'
+
+
+--9. Dodać do tabeli Pracownik następujące kolumny:
+--dzial
+--wyksztalcenie
+alter table Pracownik add dzial varchar(10),
+wyksztalcenie varchar(30)
+alter table Pracownik alter column dzial varchar(30)
+
+--Wyświetlić dane. Następnie ustawić wszystkim 
+--pracownikom dział "Organizacyjny", a pracownikom o 
+--id mniejszym niż 3, wykształcenie wyższe.
+update Pracownik set dzial='Organizacyjny'
+update Pracownik set wyksztalcenie='wyzsze'
+where id_osoba<3
+
+--10. Skopiować zawartość tabeli Pracownik do tabeli Pracownik_kopia.
+select * into Pracownik_kopia from Pracownik
+
+--11. Usunąć z tabeli Pracownik_kopia kolumnę o nazwie pesel.
+alter table Pracownik_kopia drop column pesel
+
+--12. W tabeli Pracownik_kopia zmienić kolumnę nazwisko tak, aby pozwalała na wprowadzenie 40 znaków.
+
+alter table Pracownik_kopia alter column nazwisko varchar(40)
+
+--13. W tabeli Pracownik_kopia zmienić nazwę kolumny id na id_pracownika.
+
+exec sp_rename 'Pracownik_kopia.id_osoba', 'id_pracownika', 'column'
+
+--14. Utworzyć indeks do tabeli Pracownik, indeksujący nazwisko i imię. Sprawdzić działanie.
+
+create index tab_indeks on Pracownik (nazwisko, imie)
+exec sp_helpindex Pracownik
+
+--15. Usunąć indeks z tabeli Pracownik.
+
+drop index tab_indeks on Pracownik 
+
+
+--------------------------------------------------------------------------------------------------------------------------
+
+--1. Utworzyć tabelę o nazwie GrupaProduktu zawierającą 3 kolumny (nadać samodzielnie nazwy kolumn i typy danych):
+-- - id grupy produktu - klucz główny
+-- - nazwa grupy - tekst
+-- - nazwa kategorii - tekst
+--i dodać następujące wiersze:
+--1;pieczywo;żywność
+--2;napoje;żywność
+--3;obuwie;odzież
+--4;kurtki;odzież
+
+ exec sp_rename 'GrupaProduktu1','GrupaProduktu'
+
+ alter table GrupaProduktu1
+ alter column [id grupy produktu] int not null
+
+ alter table GrupaProduktu add primary key ([id grupy produktu])
+
+--2. Utworzyć tabelę o nazwie JednostkaMiary zawierającą 4 kolumny (nadać samodzielnie nazwy kolumn i typy danych):
+--- id jednostki miary - klucz główny
+--- nazwa jednostki miary - tekst
+--- symbol jednostki miary - tekst
+--- mnożnik - liczba
+--i dodać następujące wiersze:
+--1;sztuka;szt.;1
+--2;kilogram;kg;1
+--3;litr;l.;1
+
+ exec sp_rename 'JednostkaMiary1','JednostkaMiary'
+
+
+
+ alter table JednostkaMiary
+ alter column [id jednoski miary] int not null
+
+ alter table JednostkaMiary add primary key ([id jednoski miary])
+
+--3. Utworzyć tabelę o nazwie Produkt zawierającą 4 kolumny (nadać samodzielnie nazwy kolumn i typy danych):
+--- id produktu - klucz główny
+--- nazwa produktu - tekst
+--- id grupy produktu - klucz obcy
+--- id jednostki miary - klucz obcy
+--i dodać dowolne 5 produktów, zgodnych z powyższymi kategoriami.
+
+create table Produkt 
+([id produktu] numeric(10) primary key ,
+[nazwa produktu] varchar(30),
+[id grupy produktu] numeric(10) foreign key ([id grupy produktu]) references GrupaProduktu,
+[id jednostki miary] numeric(10)
+
+--4. Utworzyć tabelę o nazwie Sklep zawierającą 3 kolumny (nadać samodzielnie nazwy kolumn i typy danych):
+--- id sklepu - klucz główny
+--- nazwa sklepu - tekst
+--- województwo - tekst
+--i dodać 5 sklepów.
+
+--5. Utworzyć tabelę o nazwie Sprzedaż, która będzie gromadziła informacje o dokonanych transakcjach (nadać samodzielnie nazwy kolumn i typy danych):
+--- id sprzedaży - klucz główny z autonumeracją
+--- id produktu - klucz obcy
+--- id sklepu - klucz obcy
+--- data transakcji - data i czas
+--- ilość - liczba z możliwym jednym miejscem po przecinku
+--- cena - waluta
+--Wypełnić ją 10 wierszami.
+
+--6. Wyświetlić wszystkie informacje o sprzedanych produktach
+--w kolumnach idproduktu, nazwa, cena, ilosc (nie wyświetlać innych kolumn).
+
+
+
+--7. Wyświetlić wszystkie niesprzedane produkty.
+
+--8. Zmienić kategorię produktów według ceny jednostkowej oferowanej za sprzedaż (cena/ilosc) - produkty kosztujące do 2 zł/jednostkę powinny nazywać się "do 2 zł", od 2 do 5 zł "2-5 zł", a pozostałe "powyżej 5 zł". Następnie należy pogrupować te produkty tworząc raport zawierający informację o nazwie sklepu, nazwie produktu oraz wyliczonej kategorii.
+
+--9. Dodać nową kolumnę o nazwie nowa_kategoria dla produktów.
+
+--10. Uzupełnić nową kategorię produktów przypisując jej kategorie z zapytania 8.
+
+--11. Wyświetlić wszystkie produkty, dodatkowo jeżeli zostały sprzedane to należy wyświetlić sprzedaną łączną ilość oraz cenę uzyskaną.
+
+--12. Utworzyć ranking najlepszych sklepów według łącznej kwoty uzyskanej ze sprzedaży produktów i zapisać go w tabeli Raport1.
+
+--13. Utworzyć raport pozwalający na przeglądanie informacji o sprzedanych produktach (cena, ilość, produkt) w nowej tabeli o nazwie Raport2.
+
+--14. Podłączyć się z poziomu MS Excel do bazy i pobrać zawartość tabeli Raport1 w formie tabelarycznej a Raport2 w formie tabeli przestawnej.
+
+--15. Wyeksportować zawartość wszystkich utworzonych dzisiaj tabel do arkusza MS Excel poprzez narzędzie MS SQL Server Import Export.
+
+create table Produkt 
+([id produktu] numeric(10) primary key ,
+[nazwa produktu] varchar(30),
+[id grupy produktu] int foreign key ([id grupy produktu]) references GrupaProduktu,
+[id jednostki miary] int foreign key([id jednostki miary])  references JednostkaMiary)
+drop table Produkt
+select * from GrupaProduktu
+
+insert into Produkt values
+(1,'mleko',1,1),
+(2,'chleb',1,1),
+(3,'sok pomaranczowy',1,1),
+(4,'sok  jablkowy',1,1),
+(5,'sok pomidorowy',1,1)
+
+drop table Produkt
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+--4. Utworzyć tabelę o nazwie Sklep zawierającą 3 kolumny (nadać samodzielnie nazwy kolumn i typy danych):
+--- id sklepu - klucz główny
+--- nazwa sklepu - tekst
+--- województwo - tekst
+--i dodać 5 sklepów.
+
+create table Sklep
+([id sklepu] numeric(10) primary key,
+[nazwa sklepu] varchar(30),
+wojewodztwo varchar(30) )
+
+
+insert into Sklep values 
+(1,'A','pomorskie'),
+(2,'B','zachodniopomorskie'),
+(3,'C','pomorskie'),
+(4,'D','pomorskie'),
+(5,'E','zachodniopomorskie')
+
+select * from Sklep
+
+--5. Utworzyć tabelę o nazwie Sprzedaż, która będzie gromadziła informacje o dokonanych transakcjach (nadać samodzielnie nazwy kolumn i typy danych):
+--- id sprzedaży - klucz główny z autonumeracją
+--- id produktu - klucz obcy
+--- id sklepu - klucz obcy
+--- data transakcji - data i czas
+--- ilość - liczba z możliwym jednym miejscem po przecinku
+--- cena - waluta
+--Wypełnić ją 10 wierszami.
+
+create table Sprzedaz 
+(idsprzedazy int primary key identity(1,1),
+idproduktu numeric(10) foreign key(idproduktu) references Produkt([id produktu]),
+idsklepu numeric(10) foreign key (idsklepu) references Sklep([id sklepu]),
+data_transakcji datetime2,
+ilosc numeric(5,1),
+cena money)
+
+select * from Produkt
+insert into Sprzedaz values
+(1,1,getdate(),5,7),
+(1,1,getdate(),5,8),
+(1,1,getdate(),15,20),
+(1,1,getdate(),20,22),
+(2,1,getdate(),1,2),
+(2,1,getdate(),3,8),
+(2,1,getdate(),2,4.5),
+(2,1,getdate(),3,12),
+(1,1,getdate(),5,7),
+(1,1,getdate(),5,8),
+(1,1,getdate(),15,20),
+(1,1,getdate(),20,22),
+(3,1,getdate(),1,3),
+(3,1,getdate(),3,9),
+(3,1,getdate(),2,4.5),
+(3,1,getdate(),3,12),
+(4,1,getdate(),2,3),
+(4,1,getdate(),3,6),
+(4,1,getdate(),2,4),
+(4,1,getdate(),3,12),
+(5,1,getdate(),1,2),
+(5,1,getdate(),2,8),
+(5,1,getdate(),2,4.5),
+(5,1,getdate(),3,12);
+
+
+
+insert into sprzedaz values
+(1,2,getdate(),5,8),
+(1,2,getdate(),5,9),
+(1,2,getdate(),15,21),
+(1,2,getdate(),20,23),
+(2,2,getdate(),1,3),
+(2,2,getdate(),3,9),
+(2,2,getdate(),2,5.5),
+(2,2,getdate(),3,13);
+
+
+
+--6. Wyświetlić wszystkie informacje o sprzedanych produktach
+--w kolumnach idproduktu, nazwa, cena, ilosc (nie wyświetlać innych kolumn).
+
+select  p.[id produktu], p.[nazwa produktu] ,s.cena, s.ilosc
+from Produkt p ,Sprzedaz s
+where p.[id produktu]=s.idproduktu
+
+
+--7. Wyświetlić wszystkie niesprzedane produkty.
+
+select * from Produkt
+where idproduktu not in 
+(select idproduktu from Sprzedaz)
+
+--8. Zmienić kategorię produktów według ceny jednostkowej oferowanej za sprzedaż (cena/ilosc)
+-- produkty kosztujące do 2 zł/jednostkę powinny nazywać się "do 2 zł", od 2 do 5 zł "2-5 zł", a pozostałe
+--"powyżej 5 zł". Następnie należy pogrupować te produkty tworząc raport zawierający informację o nazwie
+--sklepu, nazwie produktu oraz wyliczonej kategorii.
+
+with zapytanie as 
+
+(select
+idproduktu,
+case
+when cena/ilosc <2 then 'mniej niż 2 zl'
+when cena/ilosc between 2 and 5 then ' 2-5 zl'
+else 'powyzej 5'
+end as 'cenajednostkowa'
+from Sprzedaz)
+select distinct
+into zadanie8
+select p.nazwaproduktu,z.cenajednostkowa,s.nazwasklepu
+from produkt p, zapytanie z, Sklep s, Sprzedaz sp
+where z.idproduktu=sp.idproduktu
+and s.id_skelpu=sp.id_sklepu
+.....
+
+
+--9. Dodać nową kolumnę o nazwie nowa_kategoria dla produktów.
+
+alter table produkt add nowa_kategoria varchar(20)
+
+select * from produkt
+
+--10. Uzupełnić nową kategorię produktów przypisując jej kategorie z zapytania 8.
+
+
+
+--11. Wyświetlić wszystkie produkty, dodatkowo jeżeli zostały sprzedane to należy wyświetlić sprzedaną łączną ilość oraz cenę uzyskaną.
+
+--12. Utworzyć ranking najlepszych sklepów według łącznej kwoty uzyskanej ze sprzedaży produktów i zapisać go w tabeli Raport1.
+
+--13. Utworzyć raport pozwalający na przeglądanie informacji o sprzedanych produktach (cena, ilość, produkt) w nowej tabeli o nazwie Raport2.
+
+--14. Podłączyć się z poziomu MS Excel do bazy i pobrać zawartość tabeli Raport1 w formie tabelarycznej a Raport2 w formie tabeli przestawnej.
+
+--15. Wyeksportować zawartość wszystkich utworzonych dzisiaj tabel do arkusza MS Excel poprzez narzędzie MS SQL Server Import Export.
+---------------------------------------------
+update produkt set nowa_kategoria=z.cenajednostkowa
+from zadanie8 z, produkt p
+where z.nazwaproduktu=p.nazwaproduktu
+
+--11. Wyświetlić wszystkie produkty, dodatkowo(JOIN) jeżeli zostały sprzedane to należy wyświetlić sprzedaną łączną ilość oraz cenę uzyskaną.
+
+select p.*,SUM(s.ilosc) as 'łączna ilość' , SUM(s.cena) as 'łączna cena'
+from produkt p left join sprzedaz s
+on p.idproduktu=s.idproduktu
+group by p.idproduktu, p.nazwaproduktu,p.[id grupy produktu],
+p.[id jednostki miary],p.nowa_kategoria
+
+--12. Utworzyć ranking najlepszych sklepów według łącznej kwoty uzyskanej ze sprzedaży produktów i zapisać go w tabeli Raport1.
+
+select SUM(sp.cena) as 'łączna cena', sk.nazwasklepu 
+into Raport1
+from Sklep sk, sprzedaz sp
+where sk.idsklepu=sp.idsklepu
+group by sk.nazwasklepu
+order by 2 desc
+
+--13. Utworzyć raport pozwalający na przeglądanie informacji o sprzedanych produktach (cena, ilość, produkt) w nowej tabeli o nazwie Raport2.
+
+select * from Raport1
+
+select p.nazwaproduktu, sp.cena, sp.ilosc
+into Raport2
+from sprzedaz sp, produkt p
+where sp.idproduktu=p.idproduktu
+
+select * from Raport2
+
+--14. Podłączyć się z poziomu MS Excel do bazy i pobrać zawartość tabeli Raport1 w formie tabelarycznej a Raport2 w formie tabeli przestawnej.
+
+jest
+
+--15. Wyeksportować zawartość wszystkich utworzonych dzisiaj tabel do arkusza MS Excel poprzez narzędzie MS SQL Server Import Export.
+cooo
+---------------------------------------------------------------------------------------------------------------------------------------------
+--wprowadzenie
+--deklaracja zmiennych
+declare
+@liczba numeric(5),
+@tekst varchar(100)
+begin
+	--set @liczba=10 --przypisanie wartości tylko do 1 zmiennej
+	select @tekst='ABC', @liczba=10 -- przepisanie wartości do kilku zmiennych po przecinku
+	--print @liczba
+	print @tekst + ' ' + cast(@liczba as varchar(5))  --liczba na tekst
+end
+
+go 
+--instrukcja warunkowa
+declare
+@liczba numeric(5)
+begin
+	set @liczba=100
+	if @liczba<100
+	--begin 
+		print 'Mniej niż 100'
+	--end
+	else if @liczba<200
+	--begin 
+		print 'Mniej niz 200'
+	--end
+	else print '200 i wiecej'
+end
+
+go
+--pętle 
+begin 
+	declare @i as numeric(5)
+	select @i=1
+	while @i<10
+	begin
+		print @i
+		select @i+=1
+	end
+end
+
+--wykonywanie składni sql w bloku anonimowym
+begin
+	declare @zapytanie as varchar(200)
+	set @zapytanie='select count(*) as ''liczba produktow'' from produkt'
+	exec(@zapytanie)
+end
+
+--1. Zadeklarować dwie zmienne tekstowe: imie i nazwisko oraz jedną zmienną liczbową o nazwie numer porządkowy. Przypisać wartości zmiennym:
+--Jan, Kowalski, 100
+--i wyświetlić je.
+
+declare 
+	@imie varchar(30),
+	@nazwiisko varchar(30),
+	@numer_porzadkowy numeric(5)
+	begin
+set @imie='Jan'
+set @nazwiisko='Kowalski'
+set @numer_porzadkowy=100
+print @imie + ' ' + @nazwiisko + ' ' + cast(@numer_porzadkowy as varchar(5))  --liczba na tekst
+	end
+
+
+--2. Napisać program, który z wykorzystaniem instrukcji EXEC policzy liczbę wierszy w dowolnej tabeli,
+--a następnie utworzy tabelę o nazwie Raport3 wstawiając liczbę wcześniej wyliczonych wierszy. 
+--Zapytania muszą być przechowywane w zmiennych tekstowych.
+
+select COUNT(*) as 'liczba wierszy' 
+into Raport3
+from Sklep
+go
+declare 
+@zapytanie as varchar(200)
+begin
+	set @zapytanie='select COUNT(*) as ''liczba wierszy''
+	into Raport3 from Sklep'
+	exec(@zapytanie)
+end
+select * from Raport3
+
+--3. Napisać program, który wyświetli wszystkie parzyste liczby z zakresu od 1 do 
+--10. Dodatkowo po wykonaniu kodu należy wstrzymać program na 2 sekundy przed wyświetleniem danych.
+
+go
+--pętle 
+begin 
+	waitfor delay '00:00:02'
+	declare @i as numeric(5)
+	select @i=1
+	while @i<=10
+	begin
+		if @i % 2 =0 print @i
+		set @i+=1
+	end
+end
+
+--4. Napisać program, który wyświetli wszystkie liczby z zakresu od 1 do 10. Jeżeli liczba jest podzielna przez 3 to wypisze stosowną informację.
+
+--5. Wygenerować tabelę o nazwie Dane, która będzie zawierała dwie kolumny: opis oraz wartość. W tabeli powinny być zamieszczone opisy: A, B, C, D i E oraz przyporządkowane im liczby z zakresu od 1 do 100. Należy wypełnić 2000 wierszy tablicy. Jeżeli kolejny dodawany wiersz jest podzielny przez 5 to powinien otrzymać opis E, przez 4: D, przez 3: C, przez 2: B oraz przez 1: A. Podpowiedź: funkcja RAND() służy do generowania liczby losowej zmiennoprzecinkowej z zakresu od 0 do 1.
+
+--6. Wyświetlić utworzoną wcześniej tabelę wypisując w trzech kolumnach następujące wartości:
+--Klasa wielkości
+--Opis 
+--Łączna wartość  
+--gdzie:
+--- klasa wielkości ma reprezentować przedziały:
+--małe: 1 do 30
+--średnie: 31 do 70
+--duże: 71 do 100
+--- łączna wartość to funkcja agregująca SUM
+--Wyniki mają być koniecznie pogrupowane według klas wielkości i opisu.
+
+
+
+
+--2. Napisać program, który z wykorzystaniem instrukcji EXEC policzy liczbę wierszy w dowolnej tabeli,
+--a następnie utworzy tabelę o nazwie Raport3 wstawiając liczbę wcześniej wyliczonych wierszy. 
+--Zapytania muszą być przechowywane w zmiennych tekstowych.
+
+select COUNT(*) as 'liczba wierszy' 
+into Raport3
+from Sklep
+go
+declare 
+@zapytanie as varchar(200)
+begin
+	set @zapytanie='select COUNT(*) as ''liczba wierszy''
+	into Raport3 from Sklep'
+	exec(@zapytanie)
+end
+select * from Raport3
+
+--3. Napisać program, który wyświetli wszystkie parzyste liczby z zakresu od 1 do 
+--10. Dodatkowo po wykonaniu kodu należy wstrzymać program na 2 sekundy przed wyświetleniem danych.
+
+go
+--pętle 
+begin 
+	waitfor delay '00:00:02'
+	declare @i as numeric(5)
+	select @i=1
+	while @i<=10
+	begin
+		if @i % 2 =0 print @i
+		set @i+=1
+	end
+end
+
+--4. Napisać program, który wyświetli wszystkie liczby z zakresu od 1 do 10. 
+--Jeżeli liczba jest podzielna przez 3 to wypisze stosowną informację.
+
+
+go
+begin 
+	--waitfor delay '00:00:02'
+	declare @i as numeric(5)
+	select @i=1
+	while @i<=10
+	begin
+		if @i % 3 =0 print 'Liczba ' + cast( @i as varchar(5)) + ' Jest poldzielna przez trzy'
+		else print @i
+		set @i+=1
+	end
+end
+
+--5. Wygenerować tabelę o nazwie Dane, która będzie zawierała dwie kolumny: 
+--opis oraz wartość. W tabeli powinny być zamieszczone opisy: A, B, C, D i E
+--oraz przyporządkowane im liczby z zakresu od 1 do 100. Należy wypełnić 2000 
+--wierszy tablicy. Jeżeli kolejny dodawany wiersz jest podzielny przez 5 to powinien
+--otrzymać opis E, przez 4: D, przez 3: C, przez 2: B oraz przez 1: A. Podpowiedź: 
+--funkcja RAND() służy do generowania liczby losowej zmiennoprzecinkowej z zakresu od 0 do 1.
+
+declare
+@tworzenietabeli varchar(200), --zapytanie tworzące tabele
+@wstawianiewartosci varchar(200), --zapytanie wstawiające
+@liczba numeric(5),--generowanie liczb losowych
+@licznik numeric(5),--do pętli
+@opis varchar (1)-- opis od a do e
+begin
+	set @tworzenietabeli='create table Dane (opis varchar(1), wartosc numeric(5))'
+	--exec (@tworzenietabeli)
+	set @licznik=1
+	while @licznik<=100
+	begin
+		select @liczba=cast(rand()*100 as numeric(3))
+		--print @liczba
+		if @liczba % 5 = 0 set @opis='E'
+		else if @liczba % 4 = 0 set @opis='D'
+		else if @liczba % 3 = 0 set @opis='C'
+		else if @liczba % 2 = 0 set @opis='B'
+		else set @opis='A'
+		--print @opis
+		--print 'insert into Dane values('''+@opis+''','+cast(@liczba as varchar(5))+')'
+		set @wstawianiewartosci='insert into Dane values('''+@opis+''','+cast(@liczba as varchar(5))+')'
+		exec(@wstawianiewartosci)
+		set @licznik+=1
+	end
+end
+
+select * from Dane
+
+--6. Wyświetlić utworzoną wcześniej tabelę wypisując w trzech kolumnach następujące wartości:
+--Klasa wielkości
+--Opis 
+--Łączna wartość  
+--gdzie:
+--- klasa wielkości ma reprezentować przedziały:
+--małe: 1 do 30
+--średnie: 31 do 70
+--duże: 71 do 100
+--- łączna wartość to funkcja agregująca SUM
+--Wyniki mają być koniecznie pogrupowane według klas wielkości i opisu.
+go
+with zapytanie as (
+select
+wartosc,
+case 
+when wartosc between 1 and 30 then 'małe'
+when wartosc between 31 and 70 then 'średnie'
+else 'duże'
+end as 'klasa_wartosci', opis 
+from Dane)
+select klasa_wartosci, opis, SUM(wartosc)as 'Łączna wartość'
+from zapytanie 
+group by klasa_wartosci, opis
+
+ 
+--------------------------------------------
+--1. Należy utworzyć tablicę o nazwie TabLiczba, zawierającą kolumny:
+-- identyfikator (autonumeracja),
+-- liczba typu liczbowego całkowitego (co najmniej z zakresu 0 do 1000),
+-- slownie typu tekstowego.
+
+Dodać do tabeli trzy wiersze (liczba, slownie):
+1 jeden
+2 dwa
+3 trzy
+
+CREATE TABLE TabLiczba(id int identity(1,1), liczba numeric(4,0), slownie varchar(100));
+INSERT INTO TabLiczba(liczba, slownie) VALUES (1,'jeden');
+INSERT INTO TabLiczba(liczba, slownie) VALUES (2,'dwa');
+INSERT INTO TabLiczba(liczba, slownie) VALUES (3,'trzy');
+
+ select * from TabLiczba
+
+---2. Utworzyć procedurę o nazwie wyswietlDane, która wyświetli wszystkie wiersze z
+--tabeli o nazwie Liczba. Zweryfikować działanie procedury.
+
+go
+create procedure wyswietlDane --create zmien na alter jesli u want to affect the table
+as
+begin
+	select * from TabLiczba
+end
+
+exec wyswietlDane
+
+--3. Utworzyć procedurę o nazwie dodajLiczbe, która przyjmuje dwa argumenty 
+-- - liczbę oraz jej reprezentację słowną i dodaje te argumenty jako kolejny wiersz tabeli TabLiczba.
+
+go
+create procedure dodajLiczbe
+@Numer numeric(4),
+@Sl varchar (100)
+as
+begin 
+	insert into TabLiczba(liczba,slownie) values (@Numer,@Sl)
+end
+go
+
+exec dodajLiczbe @Numer=100,@Sl='sto'
+exec wyswietlDane
+
+--4. Dodać liczby od 4 do 10 wykorzystując procedurę dodajLiczbe.
+
+--Podpowiedź:
+
+exec dodajLiczbe @Numer=4, @Sl='cztery';
+exec dodajLiczbe @Numer=5, @Sl='pięć';
+exec dodajLiczbe @Numer=6, @Sl='sześć';
+exec dodajLiczbe @Numer=7, @Sl='siedem';
+exec dodajLiczbe @Numer=8, @Sl='osiem';
+exec dodajLiczbe @Numer=9, @Sl='dziewięć';
+exec dodajLiczbe @Numer=10, @Sl='dziesięć';
+
+ 
+
+--5. Utworzyć procedurę o nazwie procLiczbaSlownie, która
+--za argument przyjmuje wartość liczbową i wyświetla reprezentację
+--słowną tej liczby na podstawie danych z tabeli o nazwie TabLiczba. 
+--Zweryfikować działanie procedury.
+go
+alter procedure procLiczbaSlownie
+@liczba numeric(4)
+as
+begin
+	select slownie from TabLiczba where liczba=@liczba
+end
+
+exec procLiczbaSlownie @liczba=6
+
+--6. Utworzyć funkcję o nazwie funkcjaLiczbaSlownie,
+--która za argument przyjmuje wartość liczbową i zwraca 
+--reprezentację słowną tej liczby w postaci tabeli, na podstawie 
+--danych z tabeli o nazwie TabLiczba. Zweryfikować działanie.
+
+go
+create function funkcjaLiczbaSlownie(@liczba numeric(4))
+returns table 
+as return
+(select slownie from TabLiczba where liczba=@liczba)
+go
+
+select * from funkcjaLiczbaSlownie(4)
+
+--7. Napisać funkcję o nazwie LiczbaWierszy, która zwróci liczbę wierszy zapisanych w tabeli o nazwie TabLiczba.
+go
+create function LiczbaWierszy()
+returns int
+as
+begin
+	declare @liczba as int 
+	select @liczba=count(*) from TabLiczba
+	return @liczba
+end
+go
+
+select dbo.LiczbaWierszy()
+
+--8. Utworzyć procedurę o nazwie dodajTylkoLiczbe, która za argument 
+--przyjmuje wartość liczbową. Przed dodaniem liczby ma zostać sprawdzona,
+--czy wartość argumentu jest z zakresu 20 do 99. Jeżeli warunek ten zostanie 
+--spełniony powinna zostać dodana liczba wraz ze słowną reprezentacją np. 
+--dwadzieścia trzy. Część opisu powinna być pobierana z opisu liczb od 1 do 9. 
+--Dodać kilka liczb z zakresu od 20 do 99.
+go
+alter procedure dodajTylkoLiczbe
+@liczba int
+as
+begin 
+	declare @slownie varchar (100)
+	if @liczba between 20 and 99
+	begin 
+		if @liczba between 20 and 29 set @slownie='Dwadzieścia'
+		else if @liczba between 30 and 39 set @slownie='Trzydzieści'
+		else if @liczba between 40 and 49 set @slownie='Czterdzieści'
+		else if @liczba between 50 and 59 set @slownie='Pięćdziesiąt'
+		else if @liczba between 60 and 69 set @slownie='Sześćdziesiąt'
+		else if @liczba between 70 and 79 set @slownie='Siedemdziesiąt'
+		else if @liczba between 80 and 89 set @slownie='Osiemdziesiąt'
+		else if @liczba between 90 and 99 set @slownie='Dziewięćdziesiąt'
+		--etap 1 sprawdzenie
+		print cast(@liczba as varchar(4)) + space(1) + @slownie
+		--etap 2
+		select @slownie+=space(1)+ slownie from TabLiczba where @liczba%10=liczba
+		print 'Wstawiono do bazy '+@slownie
+		--etap 3
+		insert into TabLiczba values(@liczba,@slownie)
+		end
+end
+exec dodajTylkoLiczbe 54
+exec wyswietlDane
+
+--9. Napisać procedurę o nazwie DodajLiczby, która doda wszystkie liczby z 
+--określonego zakresu używając w tym celu procedury o nazwie dodajTylkoLiczbe. 
+--Wywołać procedurę dla zakresu od 20 do 99.
+go
+alter procedure DodajLiczby
+@min numeric(4),
+@max numeric(4)
+as
+begin 
+	while (@min<=@max)
+	begin 
+		exec dodajTylkoLiczbe @min
+		set @min+=1
+	end
+end
+exec DodajLiczby @min=20, @max=99
+exec wyswietlDane
+
+------------------------------------------------------------------------------------
+--10. Napisać funkcję o nazwie WyswietlDuplikatyLiczb,
+--która w postaci tabeli z kolumnami liczba oraz liczba_wystapien, 
+--zwróci listę wszystkich duplikatów liczb, jakie występują w tabeli.
+--Przetestować działanie.
+
+select * from TabLiczba
+go
+create function WyswietlDublikatyLiczb()
+returns table
+as return
+(select liczba, count(*) as 'liczba wystąpień'
+from TabLiczba group by liczba 
+having count(*)>1)
+go
+
+select * from WyswietlDublikatyLiczb()
+
+--11. Napisać procedurę UsunLiczbe, usuwającą liczbę podaną jako 
+--argument wywołania procedury. Przetestować działanie.
+go
+alter procedure UsunLiczbe
+@liczba numeric(4)
+as 
+begin 
+	delete from TabLiczba where liczba=@liczba
+end
+go
+exec UsunLiczbe 54
+exec dodajTylkoLiczbe 54
+
+
+SELECT definition, type
+from sys.objects AS o
+ON m.object_id = o.object_id
+---and type in ('FN','IF','P')
+
+
+-----------------------------------------------------------------------------------------------------
+--1. Utworzyć tabelę o nazwie Uczelnia z kolumnami:
+--- id autonumeracja klucz główny
+--- nazwa typu tekstowego
+--- adres typu tekstowego
+--Uzupełnić tabelę dwoma wierszami. Następnie skopiować tę tabelę do nowej tabeli o 
+select * into SzkolaWyzsza from Uczelnia
+--nazwie Szkoła wyższa. Założyć na tabeli Szkoła wyższa indeks na kolumnie nazwa.
+create index nazwa_indeksu on SzkolaWyzsza(nazwa)
+
+--2. Utworzyć tabelę o nazwie Kierunek zawierającą trzy kolumny:
+--- id klucz główny autonumeracja
+--- nazwa typu tekstowego
+--- liczba studentów - liczba całkowita
+--Dodać trzy wiersze. Do tabeli kierunek dodać nową kolumnę kategoria typu varchar.
+alter table Kierunek add kategoria varchar(30)
+--Uzupełnić nową kolumnę z wykorzystaniem instrukcji case, przypisując jej następujące wartości:
+--- poniżej 100 studentów - "do 100"
+--- poniżej 200 studentów - "do 200'
+--- w innym przypadku - "200 i powyżej'
+select
+liczba_studentow
+case 
+when liczba_studentow < 100 then 'do 100'
+when liczba_studentow between 100 and 200  then 'do 200'
+else'200 i wiecej'
+end as 'kategoria'
+into zadanie2
+from Kierunek
+
+update Kierunek set kategoria = z.kategoria
+from zadanie z, kierunek k 
+where z.liczba_studentow=k.liczba_studentow
+
+--3. W bloku anonimowym wykorzystać pętlę, która wyświetli wszystkie parzyste liczby z zakresu od 1 do 100.
+go
+declare @i as int
+set @i=1
+while @i<=100
+begin 
+	if @i % 2 = 0 
+	print @i
+	set @i+=1
+end
+go
+--4. Utworzyć tabelę o nazwie Student, która będzie zawierała 3 kolumny:
+--- nr indeksu - typ liczbowy
+--- imię - typ tekstowy
+--- nazwisko - typ tekstowy
+--Utworzyć procedurę o nazwie dodajStudenta, która umożliwi dodawanie kolejnych studentów.
+--Przetestować działanie.
+go
+create procedure dodajStudenta
+@nr_indeksu numeric(6),
+@imie varchar(30),
+@nazwisko varchar (30)
+as
+begin
+	insert into Student(nr_indkesu,imie,nazwisko)
+	values (@nr_indkesu,@imie,@nazwisko)
+end
+go
+
+exec dodajStudenta 3444, jan , ko2qkwju
+execute dodajStusenta @nr_indkesu=32233, @imie='Jan',...
+--5. Utworzyć tabelę o nazwie Szkoła, która będzie zawierała trzy kolumny:
+--- nr - typ liczbowy
+--- nazwa - typ tekstowy
+--- adres - typ tekstowy
+--Dodać trzy wiersze.
+--Utworzyć funkcję o nazwie WyswietlSzkolywGdansku, która będzie zwracała
+--tabelę zawierającą wszystkie szkoły mieszczące się w Gdańsku.
+
+create function WyswitlSzkoly WGdansju()
+returns table
+as return
+(select * from szkola shere adres like'%gdansk')
+select * from wyswietl szkle w gda
